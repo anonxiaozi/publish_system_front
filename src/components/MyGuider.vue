@@ -1,21 +1,21 @@
 <template>
     <div style="line-height: normal;">
         <div>
-            <el-input placeholder="" v-model="guiderSearch" style="width: 280px; margin-bottom: 12px;">
+            <el-input placeholder="URL、文案名称、客服ID" v-model="guiderSearch" style="width: 350px; margin-bottom: 12px;">
             </el-input>
             <el-button type="primary" size="small" icon="el-icon-refresh" @click="getGuiderAgain" style="margin-left: 10px;"></el-button>
         </div>
         <el-row>
             <el-col :span="22" :offset="1">
                 <el-table name="ipRecord" ref="multipleTable" tooltip-effect="dark" :data="newGuiders.slice((currentPage-1)*pageSize,currentPage*pageSize)">
-                    <el-table-column prop="url" label="URL" width="350%">
-                    	<template slot-scope="scope">
-							<a :href="scope.row.url" target="_blank" style="text-decoration:none; color: green">{{scope.row.url}}</a>
-                    	</template>
+                    <el-table-column prop="url" label="URL" width="300">
+                        <template slot-scope="scope">
+                            <a :href="scope.row.url" target="_blank" style="text-decoration:none; color: green">{{scope.row.url}}</a>
+                        </template>
                     </el-table-column>
-                    <el-table-column prop="cr" label="文案" width="150%">
+                    <el-table-column prop="cr" label="文案" width="120">
                     </el-table-column>
-                    <el-table-column label="客服信息" width="500%">
+                    <el-table-column label="客服信息" width="350">
                         <template slot-scope="scope">
                             <span>
                                 {{scope.row.record.default.name}} | {{scope.row.record.default.id}} | {{scope.row.record.default.call}} |
@@ -23,26 +23,31 @@
                             </span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="record.default.company" label="公司" show-overflow-tooltip>
+                    <el-table-column prop="record.default.company" label="公司" width="260" show-overflow-tooltip>
                     </el-table-column>
-                    <el-table-column fixed="right" label="" width="200%">
+                    <el-table-column fixed="right" label="" width="160">
                         <template slot-scope="scope">
-                            <el-tag type="success" effect="dark" @click="showDetailHostDialog(scope.row, scope.$index)">详细</el-tag>&nbsp;
-                            <el-tag type="warning" effect="dark" @click="showEditHostDialog(scope.row, scope.$index)">修改</el-tag>
+                            <el-tag type="success" effect="dark" @click="showDetailGuiderDialog(scope.row, scope.$index)">详细</el-tag>&nbsp;
+                            <el-tag type="warning" effect="dark" @click="showEditGuiderDialog(scope.row, scope.$index)">修改</el-tag>
                         </template>
                     </el-table-column>
                 </el-table>
             </el-col>
         </el-row>
         <div class="block" style="margin-top: 20px">
-            <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="guiders.length" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[6, 9, 11, 13]" :page-size="pageSize">
+            <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="guiders.length" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[7, 9, 11, 13]" :page-size="pageSize">
             </el-pagination>
         </div>
+        <MyGuiderDetail :guider="guider" :GuiderDialogVisible="DetailDialogVisible" :formLabelWidth="formLabelWidth" @to-hidenDetail="hidenDetail"></MyGuiderDetail>
+        <MyGuiderEdit :guider="guider" :GuiderDialogVisible="EditDialogVisible" :formLabelWidth="formLabelWidth" @to-hidenEdit="hidenEdit"></MyGuiderEdit>
         <!-- <EditHost :host="host" @to-hidenEditDialog="hidenEditDialog" :dialogFormVisible="dialogFormVisible" :formLabelWidth="formLabelWidth" @to-refreshEditHost="refreshEditHost"></EditHost> -->
         <!-- <NewHost @to-hidenAddDialog="hidenAddDialog" :newdialogFormVisible="newdialogFormVisible" :formLabelWidth="formLabelWidth" @to-refreshHost="refreshHost"></NewHost> -->
     </div>
 </template>
 <script>
+import MyGuiderDetail from './MyGuiderDetail.vue'
+import MyGuiderEdit from './MyGuiderEdit.vue'
+
 export default {
     data() {
         return {
@@ -50,11 +55,15 @@ export default {
             guiders: [],
             newGuiders: [],
             currentPage: 1,
-            pageSize: 9,
+            pageSize: 7,
+            guider: '',
+            DetailDialogVisible: false,
+            EditDialogVisible: false,
+            formLabelWidth: '250px',
         }
     },
     created() {
-        this.getGuider()
+        this.getGuider();
     },
     methods: {
         getGuider() {
@@ -68,6 +77,7 @@ export default {
                         this.newGuiders = resp.data.message;
                         this.hostSearch = '';
                         this.showMsg('客服信息已刷新', 'success')
+                        console.log(this.guiders[0])
                     } else {
                         this.showMsg(resp.data.message, 'warning')
                     }
@@ -93,13 +103,15 @@ export default {
             })
         },
         getGuiderAgain() {
-
+            this.getGuider();
         },
-        showDetailHostDialog() {
-
+        showDetailGuiderDialog(guider, idx) {
+            this.guider = guider;
+            this.DetailDialogVisible = true;
         },
-        showEditHostDialog() {
-
+        showEditGuiderDialog(guider, idx) {
+            this.guider = guider;
+            this.EditDialogVisible = true;
         },
         handleCurrentChange(currentPage) {
             this.currentPage = currentPage;
@@ -107,6 +119,40 @@ export default {
         handleSizeChange: function(size) {
             this.pageSize = size;
         },
+        fetchGuider(val) {
+            var guiderList = [];
+            this.currentPage = 1;
+            this.newGuiders = this.guiders;
+            this.newGuiders.map(guider => {
+                if (guider.record.default.id) {
+                    if (guider.url.search(val) != -1 || (guider.cr.search(val) != -1) || (guider.record.default.id.search(val) != -1)) {
+                        guiderList.push(guider)
+                    }
+                } else {
+                    if (guider.url.search(val) != -1 || (guider.cr.search(val) != -1)) {
+                        guiderList.push(guider)
+                    }
+                }
+            });
+            this.newGuiders = guiderList;
+        },
+        hidenDetail(val){
+            this.DetailDialogVisible = val;
+            this.guider = '';
+        },
+        hidenEdit(val){
+            this.EditDialogVisible = val;
+            this.guider = '';
+        }
+    },
+    watch: {
+        guiderSearch(val, oldVal) {
+            this.fetchGuider(val)
+        }
+    },
+    components: {
+        MyGuiderDetail,
+        MyGuiderEdit,
     }
 }
 </script>
