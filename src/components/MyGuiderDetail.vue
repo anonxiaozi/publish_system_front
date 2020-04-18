@@ -18,7 +18,7 @@
 </template>
 <script type="text/javascript">
 export default {
-    props: ['guider', 'GuiderDialogVisible', 'formLabelWidth'],
+    props: ['guider', 'GuiderDialogVisible'],
     methods: {
         hidenGuiderDialog() {
             this.$emit('to-hidenDetail', false)

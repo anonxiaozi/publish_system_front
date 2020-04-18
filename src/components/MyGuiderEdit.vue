@@ -1,28 +1,59 @@
 <template>
-    <div>
-        <el-dialog :title="guider.cr + ': ' + guider.url" :visible.sync="GuiderDialogVisible" center :before-close="hidenGuiderDialog">
-            <el-row :gutter="12">
-                <el-col :span="24" v-for="(cr_info, cr, idx) in guider.record" :key="idx" style="margin-bottom: 20px;">
-                    <el-card shadow="hover" :header="cr" style="color: green">
-                        {{cr_info.id}} | {{cr_info.name}} | {{cr_info.phone}} | {{cr_info.call}} |
-                        {{cr_info.company}}<br>
-                        <a :href="cr_info.img" style="text-decoration: none;" target="_blank">{{cr_info.img}}</a>
-                    </el-card>
-                </el-col>
-            </el-row>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="hidenGuiderDialog" type="primary">关 闭</el-button>
-            </div>
-        </el-dialog>
-    </div>
+    <el-dialog :title="guider.cr + ': ' + guider.url" :visible.sync="GuiderDialogVisible" center :before-close="hidenGuiderDialog">
+        <el-form :model="guider">
+            <el-card shadow="hover" header="" style="margin-bottom: 8px;" v-for="(cr_info, cr_name, idx) in guider.record" :key="idx">
+                <el-form-item :label="cr_name">
+                    <el-button style="float: right; padding: 3px 0" type="text" icon="el-icon-circle-close" v-if="cr_name !== 'default'" @click="removeRecord(cr_name)">删除</el-button>
+                </el-form-item>
+                <el-form-item label="开始时间" label-width="100px">
+                    <el-input v-model="cr_info.start_time"></el-input>
+                </el-form-item>
+                <el-form-item label="结束时间" label-width="100px">
+                    <el-input v-model="cr_info.end_time"></el-input>
+                </el-form-item>
+                <el-form-item label="ID" label-width="100px">
+                    <el-input v-model="cr_info.id"></el-input>
+                </el-form-item>
+                <el-form-item label="姓名" label-width="100px">
+                    <el-input v-model="cr_info.name"></el-input>
+                </el-form-item>
+                <el-form-item label="称呼" label-width="100px">
+                    <el-input v-model="cr_info.call"></el-input>
+                </el-form-item>
+                <el-form-item label="电话" label-width="100px">
+                    <el-input v-model="cr_info.phone"></el-input>
+                </el-form-item>
+                <el-form-item label="公司" label-width="100px">
+                    <el-input v-model="cr_info.company"></el-input>
+                </el-form-item>
+            </el-card>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="hidenGuiderDialog">取 消</el-button>
+            <el-button type="primary" @click="hidenGuiderDialog">确 定</el-button>
+        </div>
+    </el-dialog>
 </template>
 <script type="text/javascript">
 export default {
-    props: ['guider', 'GuiderDialogVisible', 'formLabelWidth'],
+    data() {
+        return {}
+    },
+    props: ['guider', 'GuiderDialogVisible'],
     methods: {
         hidenGuiderDialog() {
             this.$emit('to-hidenEdit', false)
         },
+        splitTime(val, idx) {
+            if (val === "default") {
+                return val
+            } else {
+                return val.split('-')[idx]
+            }
+        },
+        removeRecord(cr_name) {
+        	this.$delete(this.guider.record, cr_name)
+        }
     }
 }
 </script>

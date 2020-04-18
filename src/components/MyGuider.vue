@@ -38,8 +38,8 @@
             <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="guiders.length" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[7, 9, 11, 13]" :page-size="pageSize">
             </el-pagination>
         </div>
-        <MyGuiderDetail :guider="guider" :GuiderDialogVisible="DetailDialogVisible" :formLabelWidth="formLabelWidth" @to-hidenDetail="hidenDetail"></MyGuiderDetail>
-        <MyGuiderEdit :guider="guider" :GuiderDialogVisible="EditDialogVisible" :formLabelWidth="formLabelWidth" @to-hidenEdit="hidenEdit"></MyGuiderEdit>
+        <MyGuiderDetail :guider="guider" :GuiderDialogVisible="DetailDialogVisible" @to-hidenDetail="hidenDetail"></MyGuiderDetail>
+        <MyGuiderEdit :guider="guider" :GuiderDialogVisible="EditDialogVisible" @to-hidenEdit="hidenEdit"></MyGuiderEdit>
         <!-- <EditHost :host="host" @to-hidenEditDialog="hidenEditDialog" :dialogFormVisible="dialogFormVisible" :formLabelWidth="formLabelWidth" @to-refreshEditHost="refreshEditHost"></EditHost> -->
         <!-- <NewHost @to-hidenAddDialog="hidenAddDialog" :newdialogFormVisible="newdialogFormVisible" :formLabelWidth="formLabelWidth" @to-refreshHost="refreshHost"></NewHost> -->
     </div>
@@ -51,15 +51,15 @@ import MyGuiderEdit from './MyGuiderEdit.vue'
 export default {
     data() {
         return {
-            guiderSearch: '',
+            guiderSearch: 'http://hz1.cflin.xyz/suzhou1/p2/',
             guiders: [],
             newGuiders: [],
             currentPage: 1,
             pageSize: 7,
-            guider: '',
+            guider: {},
             DetailDialogVisible: false,
             EditDialogVisible: false,
-            formLabelWidth: '250px',
+            // formLabelWidth: '250px',
         }
     },
     created() {
@@ -110,7 +110,7 @@ export default {
             this.DetailDialogVisible = true;
         },
         showEditGuiderDialog(guider, idx) {
-            this.guider = guider;
+            this.guider = JSON.parse(JSON.stringify(guider));
             this.EditDialogVisible = true;
         },
         handleCurrentChange(currentPage) {
@@ -136,13 +136,13 @@ export default {
             });
             this.newGuiders = guiderList;
         },
-        hidenDetail(val){
+        hidenDetail(val) {
             this.DetailDialogVisible = val;
-            this.guider = '';
+            this.guider = {};
         },
-        hidenEdit(val){
+        hidenEdit(val) {
             this.EditDialogVisible = val;
-            this.guider = '';
+            this.guider = {};
         }
     },
     watch: {
