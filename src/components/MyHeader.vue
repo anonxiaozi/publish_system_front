@@ -4,6 +4,7 @@
             <el-menu-item index="templates" @click="GoTemplates">文案</el-menu-item>
             <el-menu-item index="guider" @click="GoGuider">客服</el-menu-item>
             <el-menu-item index="account" @click="GoAccount">账号</el-menu-item>
+            <el-menu-item index="history" @click="GoHistory">记录</el-menu-item>
         </el-menu>
     </div>
 </template>
@@ -28,6 +29,9 @@ export default {
         },
         GoAccount() {
             this.$router.push('/account').catch(err => { err })
+        },
+        GoHistory() {
+            this.$router.push('/history').catch(err => { err })
         },
     },
 }
