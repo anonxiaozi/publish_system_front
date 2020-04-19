@@ -7,7 +7,9 @@
                 </el-header>
                 <el-main>
                     <transition enter-active-class="animated fadeIn">
-                        <router-view></router-view>
+                        <keep-alive>
+                            <router-view></router-view>
+                        </keep-alive>
                     </transition>
                 </el-main>
                 <MyFooter></MyFooter>
@@ -38,7 +40,7 @@ body,
 }
 
 .el-header {
-    background-color: #E9EEF3;
+    background-color: #24292e;
     color: #333;
     text-align: center;
     line-height: normal;

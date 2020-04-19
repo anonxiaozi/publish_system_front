@@ -40,8 +40,6 @@
         </div>
         <MyGuiderDetail :guider="guider" :GuiderDialogVisible="DetailDialogVisible" @to-hidenDetail="hidenDetail"></MyGuiderDetail>
         <MyGuiderEdit :guider="guider" :GuiderDialogVisible="EditDialogVisible" @to-hidenEdit="hidenEdit" @to-refreshRecord="updateRecord"></MyGuiderEdit>
-        <!-- <EditHost :host="host" @to-hidenEditDialog="hidenEditDialog" :dialogFormVisible="dialogFormVisible" :formLabelWidth="formLabelWidth" @to-refreshEditHost="refreshEditHost"></EditHost> -->
-        <!-- <NewHost @to-hidenAddDialog="hidenAddDialog" :newdialogFormVisible="newdialogFormVisible" :formLabelWidth="formLabelWidth" @to-refreshHost="refreshHost"></NewHost> -->
     </div>
 </template>
 <script>
@@ -59,7 +57,6 @@ export default {
             guider: {},
             DetailDialogVisible: false,
             EditDialogVisible: false,
-            // formLabelWidth: '250px',
         }
     },
     created() {

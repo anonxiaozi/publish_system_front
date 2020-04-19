@@ -1,8 +1,9 @@
 <template>
     <div>
-        <el-menu :default-active="activeTab" class="el-menu-demo" mode="horizontal" background-color="#3b8e49" text-color="#fff" active-text-color="#ffd04b">
+        <el-menu :default-active="activeTab" class="el-menu-demo" mode="horizontal" background-color="#24292e" text-color="#fff700" active-text-color="#0eff0e">
             <el-menu-item index="templates" @click="GoTemplates">文案</el-menu-item>
             <el-menu-item index="guider" @click="GoGuider">客服</el-menu-item>
+            <el-menu-item index="account" @click="GoAccount">账号</el-menu-item>
         </el-menu>
     </div>
 </template>
@@ -24,6 +25,9 @@ export default {
         },
         GoGuider() {
             this.$router.push('/guider').catch(err => { err })
+        },
+        GoAccount() {
+            this.$router.push('/account').catch(err => { err })
         },
     },
 }

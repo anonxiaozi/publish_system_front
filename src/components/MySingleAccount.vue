@@ -1,13 +1,19 @@
 <template>
-    <el-dialog :title="guider.cr + ': ' + guider.url" :visible.sync="GuiderDialogVisible" center :before-close="handleClose">
-        <el-form :model="guider">
-            <el-card shadow="hover" header="" style="margin-bottom: 8px;" v-for="(cr_info, cr_name, idx) in guider.record" :key="idx">
+    <el-dialog :title="account" :visible.sync="AccountDialogVisible" center :before-close="handleClose">
+        <el-checkbox :indeterminate="isIndeterminate" v-model="selectAll" @change="handleSelectAll">全选</el-checkbox>
+        <div style="margin: 15px 0;"></div>
+        <el-checkbox-group v-model="selectUrl" @change="handleSelectUrlChange">
+            <el-checkbox v-for="url in urls" :label="url" :key="url">{{url}}</el-checkbox>
+        </el-checkbox-group>
+        <el-divider>客服</el-divider>
+        <el-form :model="record">
+            <el-card shadow="hover" header="" style="margin-bottom: 8px;" v-for="(cr_info, cr_name, idx) in record" :key="idx">
                 <el-form-item :label="cr_name">
                     <el-button style="float: right; padding: 3px" type="danger" icon="el-icon-circle-close" v-if="cr_name !== 'default'" @click="removeRecord(cr_name)">删除</el-button>
                     <el-button style="float: right; padding: 3px; margin-right: 18px;" type="success" icon="el-icon-document-add" @click="addRecord()">新增</el-button>
                 </el-form-item>
                 <el-form-item required>
-                    <el-switch v-model="cr_info.choice" inactive-text="日期" inactive-value="date" active-text="星期" active-value="week" v-if="isNew(cr_name)" @change="changeDateFormat(cr_name, cr_info.choice)">
+                    <el-switch v-model="cr_info.choice" inactive-text="日期" inactive-value="date" active-text="星期" active-value="week" v-if="isNew(cr_name)">
                     </el-switch>
                 </el-form-item>
                 <el-form-item label="开始时间" label-width="100px" required>
@@ -18,7 +24,6 @@
                         <el-option v-for="item in weekdays" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                    <el-input v-model="cr_info.start_time" v-else readonly></el-input>
                 </el-form-item>
                 <el-form-item label="结束时间" label-width="100px" required>
                     <el-input v-model="cr_info.end_time" v-if="isDefault(cr_name)" readonly></el-input>
@@ -28,7 +33,6 @@
                         <el-option v-for="item in weekdays" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                    <el-input v-model="cr_info.end_time" v-else readonly></el-input>
                 </el-form-item>
                 <el-form-item label="ID" label-width="100px" required>
                     <el-input v-model="cr_info.id"></el-input>
@@ -51,7 +55,7 @@
             </el-card>
         </el-form>
         <div slot="footer" class="dialog-footer">
-            <el-button @click="hidenGuiderDialog">取 消</el-button>
+            <el-button @click="hidenDialog">取 消</el-button>
             <el-button type="primary" @click="checkInput">确 定</el-button>
         </div>
     </el-dialog>
@@ -60,6 +64,21 @@
 export default {
     data() {
         return {
+            selectAll: false,
+            isIndeterminate: true,
+            selectUrl: [],
+            record: {
+                'default': {
+                    'start_time': 'default',
+                    'end_time': 'default',
+                    'id': '',
+                    'name': '',
+                    'call': '',
+                    'img': '',
+                    'phone': '',
+                    'company': ''
+                }
+            },
             weekdays: [
                 { value: '1', label: '星期一' },
                 { value: '2', label: '星期二' },
@@ -71,24 +90,39 @@ export default {
             ]
         }
     },
-    props: ['guider', 'GuiderDialogVisible'],
+    props: ['account', 'urls', 'AccountDialogVisible'],
     methods: {
-        hidenGuiderDialog() {
-            this.$emit('to-hidenEdit', false)
+        hidenDialog() {
+            this.record = {
+                'default': {
+                    'start_time': 'default',
+                    'end_time': 'default',
+                    'id': '',
+                    'name': '',
+                    'call': '',
+                    'img': '',
+                    'phone': '',
+                    'company': ''
+                }
+            };
+            this.selectUrl = [];
+            this.$emit('to-hidenDialog', false)
         },
-        splitTime(val, idx) {
-            if (val === "default") {
-                return val
-            } else {
-                return val.split('-')[idx]
-            }
+        handleSelectAll(val) {
+            this.selectUrl = val ? this.urls : [];
+            this.isIndeterminate = false;
+        },
+        handleSelectUrlChange(val) {
+            let selectCount = val.length;
+            this.selectAll = selectCount === this.urls.length;
+            this.isIndeterminate = selectCount > 0 && selectCount < this.urls.length;
         },
         removeRecord(cr_name) {
-            this.$delete(this.guider.record, cr_name)
+            this.$delete(this.record, cr_name)
         },
         addRecord() {
-            var name = 'new' + (Object.keys(this.guider.record).length - 1)
-            this.$set(this.guider.record, name, {
+            var name = 'new' + (Object.keys(this.record).length - 1)
+            this.$set(this.record, name, {
                 'start_time': '',
                 'end_time': '',
                 'id': '',
@@ -105,12 +139,11 @@ export default {
         isNew(val) {
             return true ? val.indexOf("new") != -1 : false
         },
-        changeDateFormat(cr_name, cr_choice) {},
-        updateGuider() {
+        submitRecord() {
             this.$http({
-                    url: 'http://' + this.remoteAddr + '/guider',
+                    url: 'http://' + this.remoteAddr + '/update_record',
                     method: 'post',
-                    data: { 'record_id': this.guider.id, 'record': JSON.stringify(this.guider.record) },
+                    data: { 'urls': JSON.stringify(this.selectUrl), 'record': JSON.stringify(this.record) },
                     transformRequest: [function(data) {
                         let result = '';
                         for (let item in data) {
@@ -124,24 +157,17 @@ export default {
                 })
                 .then(resp => {
                     if (resp.data.status == 200) {
-                        this.showNotify('文案更新成功', resp.data.message, 'success')
-                        this.refreshGuider(resp.data.data)
-                        this.hidenGuiderDialog();
+                        this.showNotify('账户 ' + this.account, resp.data.message, 'success')
                     } else {
-                        this.showNotify('失败', resp.data.message, 'failed', 5000)
+                        this.showNotify('失败', resp.data.message, 'failed', 0)
                     }
                 })
                 .catch(err => {
-                    console.log(err)
+                    this.showNotify('失败', err, 'failed', 0)
                 })
-        },
-        showMsg(data, type) {
-            this.$message({
-                showClose: true,
-                message: data,
-                type: type,
-                center: true,
-            })
+                .then(() => {
+                    this.hidenDialog();
+                })
         },
         showNotify(title, message, type, duration = 3000) {
             this.$notify({
@@ -151,33 +177,21 @@ export default {
                 duration: duration
             })
         },
-        refreshGuider(guider) {
-            this.$emit('to-refreshRecord', guider)
-        },
         checkInput() {
-            for (var r in this.guider) {
-                if (r == 'record') {
-                    for (var i in this.guider[r]) {
-                        for (var l in this.guider[r][i]) {
-                            if (this.guider[r][i][l] == '') {
-                                this.showNotify('错误', l + ' 为必填', 'failed')
-                                return false
-                            }
-                        }
-                    }
-                } else {
-                    if (this.guider[r][i] == '') {
-                        this.showNotify('错误', i + ' 为必填', 'failed')
-                        return false
-                    }
-                }
-            }
-            this.updateGuider()
+        	for (var r in this.record) {
+        		for (var i in this.record[r]) {
+        			if (this.record[r][i] == '') {
+        				this.showNotify('错误', i + ' 为必填', 'failed')
+        				return false
+        			}
+        		}
+        	}
+        	this.submitRecord()
         },
         handleClose() {
             this.$confirm('确认关闭？')
                 .then(_ => {
-                    this.hidenGuiderDialog()
+                    this.hidenDialog()
                 })
                 .catch(_ => {});
         }
