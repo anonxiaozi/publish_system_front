@@ -3,7 +3,7 @@
         <el-dialog title="" :visible.sync="buttonDialogVisible" center :before-close="hidenButtonDialog">
             <el-form>
                 <el-form-item label="文案名称:" :label-width="formLabelWidth">
-                    <el-input v-model="template" autocomplete="off" disabled></el-input>
+                    <el-input v-model="template" autocomplete="off" readonly></el-input>
                 </el-form-item>
                 <el-form-item label="发布地址:" :label-width="formLabelWidth">
                     <el-input v-model="url"></el-input>

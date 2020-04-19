@@ -12,23 +12,23 @@
                 </el-form-item>
                 <el-form-item label="开始时间" label-width="100px">
                     <el-input v-model="cr_info.start_time" v-if="isDefault(cr_name)" readonly></el-input>
-                    <el-date-picker v-model="cr_info.start_time" v-else-if="cr_info.choice == 'date'" type="datetime" placeholder="选择日期时间">
+                    <el-date-picker v-model="cr_info.start_time" v-else-if="cr_info.choice == 'date'" type="datetime" placeholder="选择日期时间" value-format	="yyyy-MM-dd HH:mm:ss">
                     </el-date-picker>
                     <el-select v-model="cr_info.start_time" placeholder="选择星期" v-else-if="cr_info.choice == 'week'">
                         <el-option v-for="item in weekdays" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                    <el-input v-model="cr_info.start_time" v-else></el-input>
+                    <el-input v-model="cr_info.start_time" v-else readonly></el-input>
                 </el-form-item>
                 <el-form-item label="结束时间" label-width="100px">
                     <el-input v-model="cr_info.end_time" v-if="isDefault(cr_name)" readonly></el-input>
-                    <el-date-picker v-model="cr_info.end_time" v-else-if="cr_info.choice == 'date'" type="datetime" placeholder="选择日期时间">
+                    <el-date-picker v-model="cr_info.end_time" v-else-if="cr_info.choice == 'date'" type="datetime" placeholder="选择日期时间"  value-format	="yyyy-MM-dd HH:mm:ss">
                     </el-date-picker>
                     <el-select v-model="cr_info.end_time" placeholder="选择星期" v-else-if="cr_info.choice == 'week'">
                         <el-option v-for="item in weekdays" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                    <el-input v-model="cr_info.end_time" v-else></el-input>
+                    <el-input v-model="cr_info.end_time" v-else readonly></el-input>
                 </el-form-item>
                 <el-form-item label="ID" label-width="100px">
                     <el-input v-model="cr_info.id"></el-input>
@@ -38,6 +38,9 @@
                 </el-form-item>
                 <el-form-item label="称呼" label-width="100px">
                     <el-input v-model="cr_info.call"></el-input>
+                </el-form-item>
+                <el-form-item label="二维码地址" label-width="100px">
+                    <el-input v-model="cr_info.img"></el-input>
                 </el-form-item>
                 <el-form-item label="电话" label-width="100px">
                     <el-input v-model="cr_info.phone"></el-input>
@@ -49,7 +52,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
             <el-button @click="hidenGuiderDialog">取 消</el-button>
-            <el-button type="primary" @click="hidenGuiderDialog">确 定</el-button>
+            <el-button type="primary" @click="updateGuider">确 定</el-button>
         </div>
     </el-dialog>
 </template>
@@ -104,7 +107,56 @@ export default {
             return true ? val.indexOf("new") != -1 : false
         },
         changeDateFormat(cr_name, cr_choice) {
-            console.log(cr_name, cr_choice)
+        },
+        updateGuider() {
+            this.$http({
+                    url: 'http://' + this.remoteAddr + '/guider',
+                    method: 'post',
+                    data: { 'record_id': this.guider.id, 'record': JSON.stringify(this.guider.record )},
+                    transformRequest: [function(data) {
+                        let result = '';
+                        for (let item in data) {
+                            result += encodeURIComponent(item) + '=' + encodeURIComponent(data[item]) + '&'
+                        }
+                        return result;
+                    }],
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                })
+                .then(resp => {
+                    if (resp.data.status == 200) {
+                        this.showNotify('文案更新成功', resp.data.message, 'success')
+                        this.refreshGuider(resp.data.data)
+                    } else {
+                        this.showNotify('失败', resp.data.message, 'failed', 5000)
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+                .then(() => {
+                    this.hidenGuiderDialog();
+                })
+        },
+        showMsg(data, type) {
+            this.$message({
+                showClose: true,
+                message: data,
+                type: type,
+                center: true,
+            })
+        },
+        showNotify(title, message, type, duration=3000) {
+            this.$notify({
+                title: title,
+                message: message,
+                type: type,
+                duration: duration
+            })
+        },
+        refreshGuider(guider) {
+        	this.$emit('to-refreshRecord', guider)
         }
     }
 }

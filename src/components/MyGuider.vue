@@ -28,7 +28,7 @@
                     <el-table-column fixed="right" label="" width="160">
                         <template slot-scope="scope">
                             <el-tag type="success" effect="dark" @click="showDetailGuiderDialog(scope.row, scope.$index)">详细</el-tag>&nbsp;
-                            <el-tag type="warning" effect="dark" @click="showEditGuiderDialog(scope.row, scope.$index)">修改</el-tag>
+                            <el-tag type="warning" effect="dark" @click="showEditGuiderDialog(scope.row)">修改</el-tag>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -39,7 +39,7 @@
             </el-pagination>
         </div>
         <MyGuiderDetail :guider="guider" :GuiderDialogVisible="DetailDialogVisible" @to-hidenDetail="hidenDetail"></MyGuiderDetail>
-        <MyGuiderEdit :guider="guider" :GuiderDialogVisible="EditDialogVisible" @to-hidenEdit="hidenEdit"></MyGuiderEdit>
+        <MyGuiderEdit :guider="guider" :GuiderDialogVisible="EditDialogVisible" @to-hidenEdit="hidenEdit" @to-refreshRecord="updateRecord"></MyGuiderEdit>
         <!-- <EditHost :host="host" @to-hidenEditDialog="hidenEditDialog" :dialogFormVisible="dialogFormVisible" :formLabelWidth="formLabelWidth" @to-refreshEditHost="refreshEditHost"></EditHost> -->
         <!-- <NewHost @to-hidenAddDialog="hidenAddDialog" :newdialogFormVisible="newdialogFormVisible" :formLabelWidth="formLabelWidth" @to-refreshHost="refreshHost"></NewHost> -->
     </div>
@@ -77,7 +77,6 @@ export default {
                         this.newGuiders = resp.data.message;
                         this.hostSearch = '';
                         this.showMsg('客服信息已刷新', 'success')
-                        console.log(this.guiders[0])
                     } else {
                         this.showMsg(resp.data.message, 'warning')
                     }
@@ -141,8 +140,14 @@ export default {
             this.guider = {};
         },
         hidenEdit(val) {
-            this.EditDialogVisible = val;
+            this.EditDialogVisible = false;
             this.guider = {};
+        },
+        updateRecord(guider) {
+            var idx = this.guiders.findIndex(data => {
+                return data.url == guider.url
+            });
+            this.$set(this.guiders[idx], 'record', guider.record)
         }
     },
     watch: {
