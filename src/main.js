@@ -9,7 +9,8 @@ import 'element-ui/lib/theme-chalk/index.css'
 Vue.use(ElementUI, { locale })
 
 Vue.config.productionTip = false
-Vue.prototype.remoteAddr = '10.15.101.58:8888'
+Vue.prototype.remoteAddr = '10.15.101.56:8080'
+// Vue.prototype.remoteAddr = '10.15.101.58:8888'
 Vue.prototype.$http = axios
 
 new Vue({

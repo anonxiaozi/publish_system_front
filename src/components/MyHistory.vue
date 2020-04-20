@@ -8,18 +8,18 @@
         <el-row>
             <el-col :span="22" :offset="1">
                 <el-table name="" ref="multipleTable" tooltip-effect="dark" :data="NewHistory.slice((currentPage-1)*pageSize,currentPage*pageSize)">
-                    <el-table-column prop="link" label="URL" width="500">
+                    <el-table-column prop="link" label="URL">
                         <template slot-scope="scope">
                             <a :href="scope.row.link" target="_blank" style="text-decoration:none; color: green">{{scope.row.link}}</a>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="cr" label="文案" width="150">
+                    <el-table-column prop="cr" label="文案">
                     </el-table-column>
-                    <el-table-column prop="datetime" label="发布时间" width="200">
+                    <el-table-column prop="datetime" label="发布时间">
                     </el-table-column>
-                    <el-table-column fixed="right" label="" width="200">
+                    <el-table-column fixed="right" label="监控">
                         <template slot-scope="scope">
-                            <el-switch v-model="scope.row.monitor" active-color="#13ce66" inactive-color="#ff4949" @change="changeMonitor(scope.row.link, scope.row.monitor)">
+                            <el-switch v-model="scope.row.monitor" active-color="#13ce66" inactive-color="#909399" @change="changeMonitor(scope.row.link, scope.row.monitor)">
                             </el-switch>
                         </template>
                     </el-table-column>
@@ -45,7 +45,11 @@ export default {
         }
     },
     mounted() {
-        this.getHistory()
+        this.getHistory();
+        var pz = localStorage.getItem('historyPageSize');
+        if (pz) {
+            this.pageSize = Number(pz);
+        }
     },
     methods: {
         getHistory() {
@@ -92,6 +96,7 @@ export default {
         },
         handleSizeChange: function(size) {
             this.pageSize = size;
+            localStorage.setItem('historyPageSize', size);
         },
         fetchHistory(val) {
             var historyList = [];

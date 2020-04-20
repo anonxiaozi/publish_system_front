@@ -8,22 +8,22 @@
         <el-row>
             <el-col :span="22" :offset="1">
                 <el-table name="ipRecord" ref="multipleTable" tooltip-effect="dark" :data="newGuiders.slice((currentPage-1)*pageSize,currentPage*pageSize)">
-                    <el-table-column prop="url" label="URL" width="300">
+                    <el-table-column prop="url" label="URL">
                         <template slot-scope="scope">
                             <a :href="scope.row.url" target="_blank" style="text-decoration:none; color: green">{{scope.row.url}}</a>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="cr" label="文案" width="120">
+                    <el-table-column prop="cr" label="文案">
                     </el-table-column>
-                    <el-table-column label="客服信息" width="350">
+                    <el-table-column label="客服信息">
                         <template slot-scope="scope">
                             <span>
                                 {{scope.row.record.default.name}} | {{scope.row.record.default.id}} | {{scope.row.record.default.call}} |
-                                {{scope.row.record.default.phone}} | <br><a href="scope.row.record.default.img" target="_blank">{{scope.row.record.default.img}}</a>
+                                {{scope.row.record.default.phone}} | <br><a href="scope.row.record.default.img" target="_blank" style="color: green">{{scope.row.record.default.img}}</a>
                             </span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="record.default.company" label="公司" width="260" show-overflow-tooltip>
+                    <el-table-column prop="record.default.company" label="公司" show-overflow-tooltip>
                     </el-table-column>
                     <el-table-column fixed="right" label="" width="160">
                         <template slot-scope="scope">
@@ -49,7 +49,7 @@ import MyGuiderEdit from './MyGuiderEdit.vue'
 export default {
     data() {
         return {
-            guiderSearch: 'http://hz1.cflin.xyz/suzhou1/p2/',
+            guiderSearch: '',
             guiders: [],
             newGuiders: [],
             currentPage: 1,
@@ -59,8 +59,12 @@ export default {
             EditDialogVisible: false,
         }
     },
-    created() {
+    mounted() {
         this.getGuider();
+        var pz = localStorage.getItem('guiderPageSize');
+        if (pz) {
+            this.pageSize = Number(pz);
+        }
     },
     methods: {
         getGuider() {
@@ -114,6 +118,7 @@ export default {
         },
         handleSizeChange: function(size) {
             this.pageSize = size;
+            localStorage.setItem('guiderPageSize', size);
         },
         fetchGuider(val) {
             var guiderList = [];
